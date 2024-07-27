@@ -13,7 +13,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect(ROUTES.LOGIN);
   }
 
-  return json({ user });
+  const userMetrics = {
+    consecutiveDaysSignedIn: 12,
+    totalJournals: 34,
+    dateIdeasExplored: 10,
+  };
+
+  return json({ user, userMetrics });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -21,19 +27,29 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Dashboard() {
-  const { user } = useLoaderData<{ user: UserWithId }>();
+  const { user, userMetrics } = useLoaderData<{
+    user: UserWithId;
+    userMetrics: any;
+  }>();
 
   return (
     <>
       <Header user={user} />
-      <div className="min-h-screen bg-gray-100 p-6">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">
+      <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+        <header className="mb-4 md:mb-8 text-left">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900">
             Welcome, {user.name}
           </h1>
         </header>
 
-        <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section className="mb-8">
+          <p className="text-gray-800 mt-4 text-lg md:text-xl">
+            Make the most out of your time together with Anchor. Explore the
+            features below to enhance your relationship.
+          </p>
+        </section>
+
+        <main className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
           <Card
             title="Shared Journal"
             description="Write and share your thoughts and experiences."
@@ -59,6 +75,32 @@ export default function Dashboard() {
             icon="🧩"
           />
         </main>
+
+        <section className="bg-white shadow-lg rounded-lg p-6 mt-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 text-center">
+            Your Relationship Insights
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4 text-center">
+            <div className="flex flex-col items-center justify-center bg-blue-100 text-blue-900 p-4 rounded-lg shadow">
+              <h3 className="text-xl md:text-2xl font-semibold">
+                {userMetrics.consecutiveDaysSignedIn}
+              </h3>
+              <p className="mt-2">Days in a Row Signed In</p>
+            </div>
+            <div className="flex flex-col items-center justify-center bg-green-100 text-green-900 p-4 rounded-lg shadow">
+              <h3 className="text-xl md:text-2xl font-semibold">
+                {userMetrics.totalJournals}
+              </h3>
+              <p className="mt-2">Total Journals Written</p>
+            </div>
+            <div className="flex flex-col items-center justify-center bg-purple-100 text-purple-900 p-4 rounded-lg shadow">
+              <h3 className="text-xl md:text-2xl font-semibold">
+                {userMetrics.dateIdeasExplored}
+              </h3>
+              <p className="mt-2">Date Ideas Explored</p>
+            </div>
+          </div>
+        </section>
       </div>
     </>
   );
