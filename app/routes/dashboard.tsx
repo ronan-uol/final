@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { Form, redirect, useLoaderData } from "@remix-run/react";
+import { Form, redirect, useLoaderData, Link } from "@remix-run/react";
 import { UserWithId } from "interfaces/user";
 import { authenticator } from "services/auth/authService.server";
 import { Card } from "~/components/card";
@@ -31,6 +31,36 @@ export default function Dashboard() {
     user: UserWithId;
     userMetrics: any;
   }>();
+
+  function getSuggestion(metrics: any) {
+    if (metrics.consecutiveDaysSignedIn < 5) {
+      return {
+        text: "Don't forget to check in tomorrow!",
+        link: "/journal",
+        actionText: "Write in your journal",
+      };
+    } else if (metrics.totalJournals < 10) {
+      return {
+        text: "How about writing a journal entry today?",
+        link: "/journal",
+        actionText: "Write a journal entry",
+      };
+    } else if (metrics.dateIdeasExplored < 5) {
+      return {
+        text: "Why not explore some new date ideas?",
+        link: "/date-ideas",
+        actionText: "Explore date ideas",
+      };
+    } else {
+      return {
+        text: "Great job! Keep up the amazing work!",
+        link: "/",
+        actionText: "Explore more features",
+      };
+    }
+  }
+
+  const suggestion = getSuggestion(userMetrics);
 
   return (
     <>
@@ -86,19 +116,40 @@ export default function Dashboard() {
                 {userMetrics.consecutiveDaysSignedIn}
               </h3>
               <p className="mt-2">Days in a Row Signed In</p>
+              <p className="text-gray-700 mt-1">
+                Keep up the great work! Consistency is key.
+              </p>
             </div>
             <div className="flex flex-col items-center justify-center bg-green-100 text-green-900 p-4 rounded-lg shadow">
               <h3 className="text-xl md:text-2xl font-semibold">
                 {userMetrics.totalJournals}
               </h3>
               <p className="mt-2">Total Journals Written</p>
+              <p className="text-gray-700 mt-1">
+                Your thoughts matter. Keep sharing them!
+              </p>
             </div>
             <div className="flex flex-col items-center justify-center bg-purple-100 text-purple-900 p-4 rounded-lg shadow">
               <h3 className="text-xl md:text-2xl font-semibold">
                 {userMetrics.dateIdeasExplored}
               </h3>
               <p className="mt-2">Date Ideas Explored</p>
+              <p className="text-gray-700 mt-1">
+                Adventure awaits! Keep discovering new experiences.
+              </p>
             </div>
+          </div>
+          <div className="mt-8 text-center bg-gray-100 p-4 rounded-lg relative">
+            <h3 className="text-xl font-semibold text-gray-800">
+              Our Recommendations{" "}
+            </h3>
+            <p className="text-gray-600 mt-2">{suggestion.text}</p>
+            <Link
+              to={suggestion.link}
+              className="mt-4 inline-block bg-blue-600 text-white py-2 px-4 rounded-full font-semibold shadow hover:bg-blue-700 transition duration-300"
+            >
+              {suggestion.actionText}
+            </Link>
           </div>
         </section>
       </div>
