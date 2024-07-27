@@ -4,6 +4,7 @@ import { UserWithId, PartnerWithId } from "interfaces/user";
 import { authenticator } from "services/auth/authService.server";
 import { AuthenticatedLayout } from "~/components/authenticatedLayout";
 import { Card } from "~/components/card";
+import { Metric } from "~/components/metric";
 import { ROUTES } from "~/constants";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -70,7 +71,7 @@ export default function Dashboard() {
   return (
     <AuthenticatedLayout user={user}>
       <div className="min-h-screen bg-blue-100 p-4 md:p-6 lg:p-8">
-        <header className="mb-4 md:mb-8 text-left">
+        <header className="max-w-screen-xl mx-auto mb-4 md:mb-8 text-left">
           <h1 className="text-3xl md:text-5xl font-extrabold">
             Welcome, {user.name}
           </h1>
@@ -81,7 +82,7 @@ export default function Dashboard() {
           </p>
         </header>
 
-        <main className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+        <main className="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
           <Card
             title="Shared Journal"
             description="Write and share your thoughts and experiences."
@@ -108,38 +109,31 @@ export default function Dashboard() {
           />
         </main>
 
-        <section className="bg-white shadow-lg rounded-lg p-6 mt-8">
+        <section className="max-w-screen-xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-8">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 text-center">
             Your Relationship Insights
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4 text-center">
-            <div className="flex flex-col items-center justify-center bg-blue-100 text-blue-900 p-4 rounded-lg shadow">
-              <h3 className="text-xl md:text-2xl font-semibold">
-                {userMetrics.consecutiveDaysSignedIn}
-              </h3>
-              <p className="mt-2">Days in a Row Signed In</p>
-              <p className="text-gray-700 mt-1">
-                Keep up the great work! Consistency is key.
-              </p>
-            </div>
-            <div className="flex flex-col items-center justify-center bg-green-100 text-green-900 p-4 rounded-lg shadow">
-              <h3 className="text-xl md:text-2xl font-semibold">
-                {userMetrics.totalJournals}
-              </h3>
-              <p className="mt-2">Total Journals Written</p>
-              <p className="text-gray-700 mt-1">
-                Your thoughts matter. Keep sharing them!
-              </p>
-            </div>
-            <div className="flex flex-col items-center justify-center bg-purple-100 text-purple-900 p-4 rounded-lg shadow">
-              <h3 className="text-xl md:text-2xl font-semibold">
-                {userMetrics.dateIdeasExplored}
-              </h3>
-              <p className="mt-2">Date Ideas Explored</p>
-              <p className="text-gray-700 mt-1">
-                Adventure awaits! Keep discovering new experiences.
-              </p>
-            </div>
+            <Metric
+              count={userMetrics.consecutiveDaysSignedIn}
+              label={"Days in a Row Signed In"}
+              insight={"Keep up the great work! Consistency is key."}
+              colour="blue"
+            />
+
+            <Metric
+              count={userMetrics.totalJournals}
+              label={"Total Journals Written"}
+              insight={"Your thoughts matter. Keep sharing them!"}
+              colour="green"
+            />
+
+            <Metric
+              count={userMetrics.dateIdeasExplored}
+              label={"Date Ideas Explored"}
+              insight={"Adventure awaits! Keep discovering new experiences."}
+              colour="red"
+            />
           </div>
           <div className="mt-8 text-center bg-gray-100 p-4 rounded-lg relative group">
             <h3 className="text-xl font-semibold text-gray-800">

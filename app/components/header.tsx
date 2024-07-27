@@ -23,7 +23,7 @@ export function Header({ user }: HeaderProps) {
         </div>
         <div className="flex items-center space-x-4 md:space-x-6">
           <span className="hidden md:inline text-md md:text-lg font-medium text-white">
-            Welcome, {user.name}
+            Signed in as {user.name}
           </span>
           <Form method="post" className="flex items-center">
             <button
