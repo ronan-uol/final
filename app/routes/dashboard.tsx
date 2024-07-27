@@ -2,6 +2,7 @@ import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, redirect, useLoaderData, Link } from "@remix-run/react";
 import { UserWithId } from "interfaces/user";
 import { authenticator } from "services/auth/authService.server";
+import { AuthenticatedLayout } from "~/components/authenticatedLayout";
 import { Card } from "~/components/card";
 import { Header } from "~/components/header";
 import { ROUTES } from "~/constants";
@@ -63,8 +64,7 @@ export default function Dashboard() {
   const suggestion = getSuggestion(userMetrics);
 
   return (
-    <>
-      <Header user={user} />
+    <AuthenticatedLayout user={user}>
       <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
         <header className="mb-4 md:mb-8 text-left">
           <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900">
@@ -153,6 +153,6 @@ export default function Dashboard() {
           </div>
         </section>
       </div>
-    </>
+    </AuthenticatedLayout>
   );
 }
