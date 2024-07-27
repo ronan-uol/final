@@ -1,10 +1,9 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { Form, redirect, useLoaderData, Link } from "@remix-run/react";
-import { UserWithId } from "interfaces/user";
+import { redirect, useLoaderData, Link } from "@remix-run/react";
+import { UserWithId, PartnerWithId } from "interfaces/user";
 import { authenticator } from "services/auth/authService.server";
 import { AuthenticatedLayout } from "~/components/authenticatedLayout";
 import { Card } from "~/components/card";
-import { Header } from "~/components/header";
 import { ROUTES } from "~/constants";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -14,13 +13,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect(ROUTES.LOGIN);
   }
 
+  const partner = {
+    name: "Jamie Doe",
+  };
+
   const userMetrics = {
     consecutiveDaysSignedIn: 12,
     totalJournals: 34,
     dateIdeasExplored: 10,
   };
 
-  return json({ user, userMetrics });
+  return json({ user, partner, userMetrics });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -28,8 +31,9 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Dashboard() {
-  const { user, userMetrics } = useLoaderData<{
+  const { user, partner, userMetrics } = useLoaderData<{
     user: UserWithId;
+    partner: PartnerWithId;
     userMetrics: any;
   }>();
 
@@ -65,19 +69,17 @@ export default function Dashboard() {
 
   return (
     <AuthenticatedLayout user={user}>
-      <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+      <div className="min-h-screen bg-blue-100 p-4 md:p-6 lg:p-8">
         <header className="mb-4 md:mb-8 text-left">
-          <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900">
+          <h1 className="text-3xl md:text-5xl font-extrabold">
             Welcome, {user.name}
           </h1>
-        </header>
-
-        <section className="mb-8">
-          <p className="text-gray-800 mt-4 text-lg md:text-xl">
-            Make the most out of your time together with Anchor. Explore the
-            features below to enhance your relationship.
+          <p className="text-lg md:text-xl mt-2">
+            You and <span className="font-extrabold">{partner.name}</span> are
+            on a journey together. Make the most out of your time with Anchor.
+            Explore the features below to enhance your relationship.
           </p>
-        </section>
+        </header>
 
         <main className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
           <Card
@@ -139,7 +141,7 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
-          <div className="mt-8 text-center bg-gray-100 p-4 rounded-lg relative">
+          <div className="mt-8 text-center bg-gray-100 p-4 rounded-lg relative group">
             <h3 className="text-xl font-semibold text-gray-800">
               Our Recommendations{" "}
             </h3>
