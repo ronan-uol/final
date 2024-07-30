@@ -51,7 +51,7 @@ export default function Journal() {
   return (
     <AuthenticatedLayout user={user}>
       <div className="min-h-screen bg-blue-100 p-4 md:p-6 lg:p-8">
-        <header className="mb-4 md:mb-8 text-left">
+        <header className="max-w-screen-xl mx-auto mb-4 md:mb-8 text-left">
           <h1 className="text-3xl md:text-5xl font-extrabold">
             Shared Journal
           </h1>
@@ -60,7 +60,7 @@ export default function Journal() {
           </p>
         </header>
 
-        <main className="max-w-screen-lg mx-auto bg-white shadow-lg rounded-lg p-6 mt-8">
+        <main className="max-w-screen-xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-8">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
             Journal Entries
           </h2>
