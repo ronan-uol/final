@@ -1,4 +1,4 @@
-import { Form } from "@remix-run/react";
+import { Form, Link } from "@remix-run/react";
 import { UserWithId } from "interfaces/user";
 
 type HeaderProps = {
@@ -11,7 +11,10 @@ export function Header({ user }: HeaderProps) {
       <div className="w-full py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <h1 className="text-3xl md:text-4xl font-extrabold text-white flex items-center">
-            <span className="mr-1 md:mr-3">Anchor</span>
+            <Link to="/dashboard">
+              <span className="mr-1 md:mr-3">Anchor</span>
+            </Link>
+
             <span
               role="img"
               aria-label="Anchor emoji"
