@@ -92,7 +92,7 @@ export default function Dashboard() {
           <Card
             title="Date Night Ideas"
             description="Find fun and exciting date night ideas."
-            link="/date-ideas"
+            link="/dates"
             icon="🎉"
           />
           <Card
