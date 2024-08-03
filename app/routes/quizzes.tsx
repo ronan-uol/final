@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useLoaderData } from "@remix-run/react";
 import { AuthenticatedLayout } from "~/components/authenticatedLayout";
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { authenticator } from "services/auth/authService.server";
+import { ROUTES } from "~/constants";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await authenticator.isAuthenticated(request);
@@ -63,37 +64,38 @@ export default function Quizzes() {
     setRevealed(updatedRevealed);
   };
 
+  const handleSubmit = async (quizIndex, questionIndex) => {
+    // Handle your form submission logic here
+    console.log("Submitted answer:", answers[quizIndex][questionIndex]);
+  };
+
   return (
     <AuthenticatedLayout user={user}>
-      <div className="min-h-screen bg-blue-100 p-4 md:p-6 lg:p-8">
+      <div className="min-h-screen bg-gray-100 p-4 md:p-6 lg:p-8">
         <header className="max-w-screen-xl mx-auto mb-4 md:mb-8 text-left">
           <h1 className="text-3xl md:text-5xl font-extrabold text-gray-800">
             Daily Quizzes
           </h1>
           <p className="text-lg md:text-xl mt-2 text-gray-600">
-            Get to know your partner better with our daily AI-generated quizzes.
+            Today's theme: Dungeons and Dragons
           </p>
         </header>
 
         <main className="max-w-screen-xl mx-auto">
-          <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-              Today's Theme: Dragons and Dungeons
-            </h2>
-
+          <div className="mb-8">
             {quizzes.map((quiz, quizIndex) => (
               <div key={quiz.id} className="mb-8">
-                <ol className="space-y-4 list-decimal pl-5 text-gray-700">
+                <div className="space-y-8">
                   {quiz.questions.map((question, questionIndex) => (
-                    <li
+                    <div
                       key={question.id}
-                      className="rounded-lg shadow-lg p-6 bg-blue-50 border-l-4 border-blue-200"
+                      className="rounded-lg shadow-lg p-6 bg-white border-l-4 "
                     >
                       <p className="text-lg font-semibold text-blue-800">
                         {question.question}
                       </p>
 
-                      <div className="mt-4 flex items-center space-x-4">
+                      <div className="mt-4">
                         <textarea
                           value={answers[quizIndex][questionIndex]}
                           onChange={(e) =>
@@ -103,32 +105,44 @@ export default function Quizzes() {
                               e.target.value
                             )
                           }
-                          className="flex-1 p-2 border border-blue-300 rounded-md text-gray-800"
+                          className="w-full p-2 border border-blue-300 rounded-md text-gray-800 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="Write your answer here..."
                         />
-                        <button
-                          onClick={() => handleReveal(quizIndex, questionIndex)}
-                          className="bg-blue-600 text-white py-2 px-4 rounded-full font-semibold shadow hover:bg-blue-700 transition duration-300"
-                        >
-                          Reveal
-                        </button>
+                        <div className="mt-4 flex space-x-4">
+                          <button
+                            onClick={() =>
+                              handleSubmit(quizIndex, questionIndex)
+                            }
+                            className="bg-green-200 text-gray-800 py-2 px-4 rounded-full font-semibold shadow hover:bg-green-300 transition duration-300"
+                          >
+                            Submit
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleReveal(quizIndex, questionIndex)
+                            }
+                            className="bg-blue-600 text-white py-2 px-4 rounded-full font-semibold shadow hover:bg-blue-700 transition duration-300"
+                          >
+                            Reveal
+                          </button>
+                        </div>
                       </div>
 
                       {revealed[quizIndex][questionIndex] && (
-                        <div className="mt-4 p-4 bg-blue-100 border-l-4 border-blue-300 rounded-md">
-                          <p className="text-lg font-bold text-blue-800">
+                        <div className="mt-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-md">
+                          <p className="text-lg font-bold text-green-800">
                             Partner's Answer:
                           </p>
-                          <p className="mt-2 text-blue-600">
+                          <p className="mt-2 text-green-800">
                             {question.partnerAnswer
                               ? question.partnerAnswer
                               : "Your partner hasn't answered this question yet."}
                           </p>
                         </div>
                       )}
-                    </li>
+                    </div>
                   ))}
-                </ol>
+                </div>
               </div>
             ))}
           </div>
