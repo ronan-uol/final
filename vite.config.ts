@@ -4,7 +4,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   optimizeDeps: {
-    exclude: ["aws-sdk", "nock", "mock-aws-s3"],
+    exclude: ["aws-sdk", "nock", "mock-aws-s3", ".html"],
   },
   plugins: [
     remix({
