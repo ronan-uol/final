@@ -8,11 +8,20 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  name          String
-  email         String   @unique
-  passwordHash  String
-  partnershipId String?
-  createdOn     DateTime @default(now())
-  updatedOn     DateTime @updatedAt
+  id             String         @id @default(uuid())
+  name           String
+  email          String         @unique
+  passwordHash   String
+  partnershipId  String?
+  createdOn      DateTime       @default(now())
+  updatedOn      DateTime       @updatedAt
+  journalEntries JournalEntry[]
+}
+
+model JournalEntry {
+  id        String   @id @default(uuid())
+  content   String
+  timestamp DateTime @default(now())
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }

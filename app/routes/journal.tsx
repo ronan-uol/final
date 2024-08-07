@@ -4,6 +4,11 @@ import { AuthenticatedLayout } from "~/components/authenticatedLayout";
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { authenticator } from "services/auth/authService.server";
 import { ROUTES } from "~/constants";
+import { getJournalEntries } from "~/services/journal.service";
+import { JournalEntry, User } from "@prisma/client";
+import { parseJsonAndReviveDate } from "~/utils";
+
+export async function action({ request }: LoaderFunctionArgs) {}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await authenticator.isAuthenticated(request);
@@ -12,34 +17,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect(ROUTES.LOGIN);
   }
 
-  // Mocked data for now, you should replace this with real data fetching logic
-  const journalEntries = [
-    {
-      id: 1,
-      author: user.name,
-      timestamp: new Date().toLocaleString(),
-      content: "This is my first journal entry.",
-    },
-    {
-      id: 2,
-      author: "Jamie Doe",
-      timestamp: new Date().toLocaleString(),
-      content: "This is Jamie's journal entry.",
-    },
-  ];
+  const journalEntries = await getJournalEntries(user.id);
 
   return json({ user, journalEntries });
 }
 
 export default function Journal() {
-  const { user, journalEntries } = useLoaderData() as {
-    user: { name: string; id: "id"; email: "email" };
-    journalEntries: {
-      id: number;
-      author: string;
-      timestamp: string;
-      content: string;
-    }[];
+  const data = useLoaderData();
+  const { user, journalEntries } = parseJsonAndReviveDate(data) as {
+    user: { name: string; id: string; email: string };
+    journalEntries: (JournalEntry & { author: User })[];
   };
 
   const [newEntry, setNewEntry] = useState("");
@@ -48,8 +35,8 @@ export default function Journal() {
     setNewEntry("");
   };
 
-  const getEntryStyle = (author: string) => {
-    if (author === user.name) {
+  const getEntryStyle = (id: string) => {
+    if (id === user.id) {
       return {
         backgroundColor: "rgba(59, 130, 246, 0.2)",
       }; // Blue color for signed-in user
@@ -82,11 +69,12 @@ export default function Journal() {
               <div
                 key={entry.id}
                 className="p-4 rounded-lg shadow-md"
-                style={getEntryStyle(entry.author)}
+                style={getEntryStyle(entry.authorId)}
               >
                 <p className="text-gray-600">{entry.content}</p>
                 <div className="text-sm text-gray-500 mt-2">
-                  <span>{entry.author}</span> | <span>{entry.timestamp}</span>
+                  <span>{entry.author.name}</span> |{" "}
+                  <span>{entry.timestamp.toString()}</span>
                 </div>
               </div>
             ))}
