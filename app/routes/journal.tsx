@@ -48,6 +48,18 @@ export default function Journal() {
     setNewEntry("");
   };
 
+  const getEntryStyle = (author: string) => {
+    if (author === user.name) {
+      return {
+        backgroundColor: "rgba(59, 130, 246, 0.2)",
+      }; // Blue color for signed-in user
+    } else {
+      return {
+        backgroundColor: "rgba(34, 197, 94, 0.2)",
+      }; // Green color for other users
+    }
+  };
+
   return (
     <AuthenticatedLayout user={user}>
       <div className="min-h-screen bg-blue-100 p-4 md:p-6 lg:p-8">
@@ -69,7 +81,8 @@ export default function Journal() {
             {journalEntries.map((entry) => (
               <div
                 key={entry.id}
-                className="bg-gray-100 p-4 rounded-lg shadow-md"
+                className="p-4 rounded-lg shadow-md"
+                style={getEntryStyle(entry.author)}
               >
                 <p className="text-gray-600">{entry.content}</p>
                 <div className="text-sm text-gray-500 mt-2">
