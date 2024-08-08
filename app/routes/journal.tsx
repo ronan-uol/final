@@ -62,15 +62,15 @@ export default function Journal() {
   }, [submitting]);
 
   const getEntryStyle = (id: string) => {
-    if (id === user.id) {
-      return {
-        backgroundColor: "rgba(59, 130, 246, 0.2)",
-      }; // Blue color for signed-in user
-    } else {
-      return {
-        backgroundColor: "rgba(34, 197, 94, 0.2)",
-      }; // Green color for other users
+    const green = "rgba(34, 197, 94, 0.2)";
+    const blue = "rgba(59, 130, 246, 0.2)";
+    const isSignedInUser = id === user.id;
+
+    if (isSignedInUser) {
+      return { backgroundColor: blue };
     }
+
+    return { backgroundColor: green };
   };
 
   return (
