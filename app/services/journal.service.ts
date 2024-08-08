@@ -7,7 +7,7 @@ export async function getJournalEntries(userId: string) {
   const promises = [userId, partnerId].map((id) =>
     prisma.journalEntry.findMany({
       where: {
-        authorId: userId,
+        authorId: id || "",
       },
       orderBy: {
         timestamp: "desc",
@@ -21,4 +21,13 @@ export async function getJournalEntries(userId: string) {
   const [userEntries, partnerEntries] = await Promise.all(promises);
 
   return [...userEntries, ...partnerEntries];
+}
+
+export async function addJournalEntry(userId: string, content: string) {
+  return prisma.journalEntry.create({
+    data: {
+      content,
+      authorId: userId,
+    },
+  });
 }

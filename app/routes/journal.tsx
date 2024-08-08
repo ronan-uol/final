@@ -1,14 +1,30 @@
-import { useState } from "react";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData, useNavigation } from "@remix-run/react";
 import { AuthenticatedLayout } from "~/components/authenticatedLayout";
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { authenticator } from "services/auth/authService.server";
 import { ROUTES } from "~/constants";
-import { getJournalEntries } from "~/services/journal.service";
+import { addJournalEntry, getJournalEntries } from "~/services/journal.service";
 import { JournalEntry, User } from "@prisma/client";
 import { parseJsonAndReviveDate } from "~/utils";
+import { useEffect, useRef } from "react";
 
-export async function action({ request }: LoaderFunctionArgs) {}
+export async function action({ request }: LoaderFunctionArgs) {
+  const user = await authenticator.isAuthenticated(request);
+
+  if (!user) {
+    return redirect(ROUTES.LOGIN);
+  }
+
+  const formData = await request.formData();
+
+  const data = Object.fromEntries(formData);
+
+  if (!data?.content) {
+    return redirect(ROUTES.JOURNAL);
+  }
+
+  return await addJournalEntry(user.id, data?.content as string);
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await authenticator.isAuthenticated(request);
@@ -28,12 +44,16 @@ export default function Journal() {
     user: { name: string; id: string; email: string };
     journalEntries: (JournalEntry & { author: User })[];
   };
+  const navigation = useNavigation();
+  let submitting = navigation.state === "submitting";
 
-  const [newEntry, setNewEntry] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const handleAddEntry = () => {
-    setNewEntry("");
-  };
+  useEffect(() => {
+    if (!submitting) {
+      formRef.current?.reset();
+    }
+  }, [submitting]);
 
   const getEntryStyle = (id: string) => {
     if (id === user.id) {
@@ -80,21 +100,20 @@ export default function Journal() {
             ))}
           </div>
 
-          <div className="mt-8">
+          <Form ref={formRef} method="post" className="mt-8">
             <textarea
-              value={newEntry}
-              onChange={(e) => setNewEntry(e.target.value)}
               rows={4}
+              name="content"
               className="w-full p-4 rounded-lg shadow-md"
               placeholder="Write your journal entry here..."
             />
             <button
-              onClick={handleAddEntry}
+              type="submit"
               className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-full font-semibold shadow hover:bg-blue-700 transition duration-300"
             >
               Add Entry
             </button>
-          </div>
+          </Form>
         </main>
       </div>
     </AuthenticatedLayout>
