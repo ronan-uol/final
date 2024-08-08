@@ -31,3 +31,11 @@ export async function addJournalEntry(userId: string, content: string) {
     },
   });
 }
+
+export async function deleteJournalEntry(entryId: string) {
+  return prisma.journalEntry.delete({
+    where: {
+      id: entryId,
+    },
+  });
+}

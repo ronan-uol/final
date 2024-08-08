@@ -3,7 +3,11 @@ import { AuthenticatedLayout } from "~/components/authenticatedLayout";
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { authenticator } from "services/auth/authService.server";
 import { ROUTES } from "~/constants";
-import { addJournalEntry, getJournalEntries } from "~/services/journal.service";
+import {
+  addJournalEntry,
+  deleteJournalEntry,
+  getJournalEntries,
+} from "~/services/journal.service";
 import { JournalEntry, User } from "@prisma/client";
 import { parseJsonAndReviveDate } from "~/utils";
 import { useEffect, useRef } from "react";
@@ -17,13 +21,15 @@ export async function action({ request }: LoaderFunctionArgs) {
 
   const formData = await request.formData();
 
-  const data = Object.fromEntries(formData);
+  const { _action, ...data } = Object.fromEntries(formData);
 
-  if (!data?.content) {
-    return redirect(ROUTES.JOURNAL);
+  if (_action === "delete" && data?.entryId) {
+    return await deleteJournalEntry(data?.entryId as string);
   }
 
-  return await addJournalEntry(user.id, data?.content as string);
+  if (_action === "add" && data?.content) {
+    return await addJournalEntry(user.id, data?.content as string);
+  }
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -88,13 +94,26 @@ export default function Journal() {
             {journalEntries.map((entry) => (
               <div
                 key={entry.id}
-                className="p-4 rounded-lg shadow-md"
+                className="relative p-4 rounded-lg shadow-md"
                 style={getEntryStyle(entry.authorId)}
               >
+                {entry.authorId === user.id && (
+                  <Form method="post" className="absolute top-2 right-2">
+                    <input type="hidden" name="entryId" value={entry.id} />
+                    <button
+                      type="submit"
+                      name="_action"
+                      value="delete"
+                      className="text-red-600 hover:text-red-800 font-bold"
+                    >
+                      ✖
+                    </button>
+                  </Form>
+                )}
                 <p className="text-gray-600">{entry.content}</p>
                 <div className="text-sm text-gray-500 mt-2">
                   <span>{entry.author.name}</span> |{" "}
-                  <span>{entry.timestamp.toString()}</span>
+                  <span>{new Date(entry.timestamp).toString()}</span>
                 </div>
               </div>
             ))}
@@ -109,6 +128,8 @@ export default function Journal() {
             />
             <button
               type="submit"
+              name="_action"
+              value="add"
               className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-full font-semibold shadow hover:bg-blue-700 transition duration-300"
             >
               Add Entry
