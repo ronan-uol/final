@@ -3,6 +3,7 @@ import { AuthenticatedLayout } from "~/components/authenticatedLayout";
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { authenticator } from "services/auth/authService.server";
 import { ROUTES } from "~/constants";
+import { getDateIdeas } from "~/services/dates.service";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await authenticator.isAuthenticated(request);
@@ -11,37 +12,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect(ROUTES.LOGIN);
   }
 
-  const dateIdeas = [
-    {
-      id: 1,
-      title: "Picnic in the Park",
-      description: "Pack some snacks and enjoy a sunny day in the park.",
-      image:
-        "https://plus.unsplash.com/premium_photo-1680706777258-553b9357eb04?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 2,
-      title: "Movie Night",
-      description: "Pick a movie you both love, make some popcorn, and relax.",
-      image:
-        "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 3,
-      title: "Cooking Class",
-      description:
-        "Take a cooking class together and learn to make a new dish.",
-      image:
-        "https://plus.unsplash.com/premium_photo-1671377387797-8d3307a546a6?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 4,
-      title: "Hiking",
-      description: "Find a nearby trail and enjoy a day of hiking and nature.",
-      image:
-        "https://plus.unsplash.com/premium_photo-1661883853185-165f5869e6d3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-  ];
+  const dateIdeas = await getDateIdeas();
 
   return json({ user, dateIdeas });
 }
@@ -70,7 +41,7 @@ export default function DateIdeas() {
                 className="relative bg-white rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300"
               >
                 <img
-                  src={idea.image}
+                  src={idea.url}
                   alt={idea.title}
                   className="w-full h-40 object-cover"
                 />
@@ -79,11 +50,6 @@ export default function DateIdeas() {
                     {idea.title}
                   </h3>
                   <p className="text-gray-600 mb-4">{idea.description}</p>
-                  <div className="text-right">
-                    <button className="bg-blue-600 text-white py-2 px-4 rounded-full font-semibold shadow hover:bg-blue-700 transition duration-300">
-                      View Details
-                    </button>
-                  </div>
                 </div>
               </div>
             ))}
