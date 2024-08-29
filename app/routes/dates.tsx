@@ -64,9 +64,9 @@ export default function DateIdeas() {
 
         <main className="max-w-screen-xl mx-auto ">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {dateIdeas.map((idea) => (
+            {dateIdeas.map((idea, index) => (
               <div
-                key={idea.id}
+                key={index}
                 className="relative bg-white rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300"
               >
                 <img
