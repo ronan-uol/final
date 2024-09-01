@@ -16,6 +16,7 @@ model User {
   createdOn      DateTime       @default(now())
   updatedOn      DateTime       @updatedAt
   journalEntries JournalEntry[]
+  expenses       Expense[]
 }
 
 model JournalEntry {
@@ -31,4 +32,13 @@ model DateIdea {
   title       String
   description String
   url         String
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  amount      Float
+  description String
+  createdOn   DateTime @default(now())
 }
