@@ -5,7 +5,7 @@ import { authenticator } from "services/auth/authService.server";
 import { ROUTES } from "~/constants";
 import {
   getDailyQuiz,
-  getPartnerQuizAnswers,
+  getUserQuizAnswers,
   submitQuizAnswer,
 } from "~/services/quizzes.service";
 import { useEffect, useRef, useState } from "react";
@@ -25,17 +25,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   const partnerId = await getPartnerId(user.id);
+  let partnerAnswers = {} as { [key: string]: string };
 
   if (partnerId) {
-    const partnerAnswers = await getPartnerQuizAnswers(partnerId, quiz.id);
-
-    quiz.questions = quiz.questions.map((question) => {
-      return {
-        ...question,
-        partnerAnswer: partnerAnswers?.[question.id] || null,
-      };
-    });
+    partnerAnswers = (await getUserQuizAnswers(partnerId, quiz.id)) || {};
   }
+
+  const userAnswers = await getUserQuizAnswers(user.id, quiz.id);
+
+  quiz.questions = quiz.questions.map((question) => ({
+    ...question,
+    partnerAnswer: (partnerAnswers?.[question.id] as string) || null,
+    userAnswer: userAnswers?.[question.id] || "",
+  }));
 
   return json({ user, quiz });
 }
@@ -65,9 +67,10 @@ export async function action({ request }: LoaderFunctionArgs) {
 
 export default function Quizzes() {
   const { user, quiz } = useLoaderData();
-  const [revealed, setRevealed] = useState(quiz.questions.map(() => false));
   const navigation = useNavigation();
   let submitting = navigation.state === "submitting";
+
+  const [revealed, setRevealed] = useState(quiz.questions.map(() => false));
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -108,8 +111,10 @@ export default function Quizzes() {
                     <Form ref={formRef} method="post" className="mt-4">
                       <textarea
                         name="answer"
+                        defaultValue={question.userAnswer}
                         className="w-full p-2 border border-blue-300 rounded-md text-gray-800 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Write your answer here..."
+                        readOnly={Boolean(question.userAnswer)}
                       />
                       <input
                         type="hidden"
@@ -122,9 +127,14 @@ export default function Quizzes() {
                           type="submit"
                           name="_action"
                           value="submitAnswer"
-                          className="bg-green-200 text-gray-800 py-2 px-4 rounded-full font-semibold shadow hover:bg-green-300 transition duration-300"
+                          className={`py-2 px-4 rounded-full font-semibold shadow transition duration-300 ${
+                            question.userAnswer
+                              ? "bg-gray-200 text-gray-800 cursor-not-allowed"
+                              : "bg-green-200 text-gray-800 hover:bg-green-300"
+                          }`}
+                          disabled={!!question.userAnswer}
                         >
-                          Submit
+                          {question.userAnswer ? "Submitted" : "Submit"}
                         </button>
                         <button
                           type="button"

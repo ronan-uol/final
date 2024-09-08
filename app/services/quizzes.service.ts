@@ -77,7 +77,7 @@ export async function getDailyQuiz() {
   return quiz;
 }
 
-export async function getPartnerQuizAnswers(userId: string, quizId: string) {
+export async function getUserQuizAnswers(userId: string, quizId: string) {
   const quizzes = await prisma.completedQuiz.findMany({
     where: {
       userId,
@@ -86,8 +86,6 @@ export async function getPartnerQuizAnswers(userId: string, quizId: string) {
       quiz: true,
     },
   });
-
-  console.log({ quizzes });
 
   const quiz = quizzes.find((quiz) => quiz.quizId === quizId);
 
