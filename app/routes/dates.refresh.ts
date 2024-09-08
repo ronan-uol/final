@@ -6,5 +6,9 @@ export async function action() {
 
   const dateIdeas = await getDateIdeas();
 
+  if (!dateIdeas || !dateIdeas.length) {
+    return json({ error: "No date ideas found" }, { status: 404 });
+  }
+
   return json({ dateIdeas });
 }
