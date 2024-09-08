@@ -18,6 +18,7 @@ model User {
   journalEntries   JournalEntry[]
   expenses         Expense[]
   completedQuizzes CompletedQuiz[]
+  lastSignIn       DateTime        @default(now())
 }
 
 model JournalEntry {

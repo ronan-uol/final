@@ -21,7 +21,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 };
 
-export default function SignUp() {
+export default function SignIn() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="font-sans p-8 rounded-lg shadow-md bg-white w-full max-w-md">

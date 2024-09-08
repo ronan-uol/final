@@ -13,3 +13,30 @@ export async function getPartnerId(userId: string): Promise<string | null> {
 
   return user.partnershipId;
 }
+
+export async function getUserMetrics(
+  userId: string,
+  lastSignIn: Date,
+  createdOn: Date
+) {
+  const totalJournals = await prisma.journalEntry.count({
+    where: {
+      authorId: userId,
+    },
+  });
+
+  const msInADay = 24 * 60 * 60 * 1000;
+  const daysSignedIn = Math.ceil(
+    (new Date(lastSignIn).getTime() - new Date(createdOn).getTime()) / msInADay
+  );
+
+  const numberOfDateIdeasPerDay = 6;
+
+  const userMetrics = {
+    totalJournals: totalJournals,
+    dateIdeasExplored: daysSignedIn * numberOfDateIdeasPerDay,
+    daysSignedIn,
+  };
+
+  return userMetrics;
+}

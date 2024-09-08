@@ -2,10 +2,12 @@ import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { redirect, useLoaderData, Link } from "@remix-run/react";
 import { UserWithId, PartnerWithId } from "interfaces/user";
 import { authenticator } from "services/auth/authService.server";
+import { getUser } from "services/user/userService.server";
 import { AuthenticatedLayout } from "~/components/authenticatedLayout";
 import { Card } from "~/components/card";
 import { Metric } from "~/components/metric";
 import { ROUTES } from "~/constants";
+import { getPartnerId, getUserMetrics } from "~/services/user.service";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await authenticator.isAuthenticated(request);
@@ -14,15 +16,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect(ROUTES.LOGIN);
   }
 
-  const partner = {
-    name: "Jamie Doe",
-  };
+  const [partnerId, userMetrics] = await Promise.all([
+    getPartnerId(user.id),
+    getUserMetrics(user.id, user.lastSignIn, user.createdOn),
+  ]);
 
-  const userMetrics = {
-    consecutiveDaysSignedIn: 12,
-    totalJournals: 34,
-    dateIdeasExplored: 10,
-  };
+  let partner = null;
+
+  if (partnerId) {
+    partner = await getUser(partnerId);
+  }
 
   return json({ user, partner, userMetrics });
 }
@@ -75,11 +78,18 @@ export default function Dashboard() {
           <h1 className="text-3xl md:text-5xl font-extrabold">
             Welcome, {user.name}
           </h1>
-          <p className="text-lg md:text-xl mt-2">
-            You and <span className="font-extrabold">{partner.name}</span> are
-            on a journey together. Make the most out of your time with Anchor.
-            Explore the features below to enhance your relationship.
-          </p>
+          {partner ? (
+            <p className="text-lg md:text-xl mt-2">
+              You and <span className="font-extrabold">{partner?.name}</span>{" "}
+              are on a journey together. Make the most out of your time with
+              Anchor. Explore the features below to enhance your relationship.
+            </p>
+          ) : (
+            <p className="text-lg md:text-xl mt-2">
+              You are on a journey with Anchor. Make the most out of your time
+              with us. Explore the features below to enhance your relationship.
+            </p>
+          )}
         </header>
 
         <main className="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
@@ -115,8 +125,8 @@ export default function Dashboard() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4 text-center">
             <Metric
-              count={userMetrics.consecutiveDaysSignedIn}
-              label={"Days in a Row Signed In"}
+              count={userMetrics.daysSignedIn}
+              label={"Days Signed In"}
               insight={"Keep up the great work! Consistency is key."}
               colour="blue"
             />
