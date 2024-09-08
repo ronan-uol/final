@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import { AuthenticatedLayout } from "~/components/authenticatedLayout";
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { authenticator } from "services/auth/authService.server";
 import { ROUTES } from "~/constants";
+import { addExpense, getExpenses } from "~/services/expenses.service";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await authenticator.isAuthenticated(request);
@@ -12,19 +13,29 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect(ROUTES.LOGIN);
   }
 
-  const expenses = [
-    { id: 1, author: "John Doe", amount: 50, description: "Groceries" },
-    { id: 2, author: "Jamie Doe", amount: 75, description: "Dinner" },
-    { id: 3, author: "John Doe", amount: 30, description: "Gas" },
-  ];
+  const expenses = await getExpenses(user.id);
 
   return json({ user, expenses });
 }
 
+export async function action({ request }: LoaderFunctionArgs) {
+  const user = await authenticator.isAuthenticated(request);
+
+  if (!user) {
+    return redirect(ROUTES.LOGIN);
+  }
+
+  const formData = await request.formData();
+
+  const { amount, description } = Object.fromEntries(formData);
+
+  console.log({ amount, description, formData });
+
+  return await addExpense(user.id, Number(amount), description.toString());
+}
+
 export default function ExpenseTracker() {
   const { user, expenses } = useLoaderData();
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
 
   const calculateBalance = (user, expenses) => {
     const userAmount = expenses
@@ -34,11 +45,6 @@ export default function ExpenseTracker() {
       .filter((expense) => expense.author !== user.name)
       .reduce((total, expense) => total + expense.amount, 0);
     return userAmount - partnerAmount;
-  };
-
-  const handleAddExpense = () => {
-    setAmount("");
-    setDescription("");
   };
 
   const balance = calculateBalance(user, expenses);
@@ -60,13 +66,12 @@ export default function ExpenseTracker() {
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
               Add New Expense
             </h2>
-            <div className="space-y-4 mb-8">
+            <Form method="post" className="space-y-4 mb-8">
               <div>
                 <label className="block text-gray-700">Amount</label>
                 <input
                   type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  name="amount"
                   className="w-full p-2 mt-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -74,18 +79,17 @@ export default function ExpenseTracker() {
                 <label className="block text-gray-700">Description</label>
                 <input
                   type="text"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  name="description"
                   className="w-full p-2 mt-2 border border-gray-300 rounded-md"
                 />
               </div>
               <button
-                onClick={handleAddExpense}
+                type="submit"
                 className="bg-blue-600 text-white py-2 px-4 rounded-full font-semibold shadow hover:bg-blue-700 transition duration-300"
               >
                 Add Expense
               </button>
-            </div>
+            </Form>
 
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 text-left">
               Expense Summary
