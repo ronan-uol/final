@@ -6,7 +6,5 @@ export async function action() {
 
   const dateIdeas = await getDateIdeas();
 
-  console.log({ dateIdeas });
-
   return json({ dateIdeas });
 }
