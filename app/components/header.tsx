@@ -1,5 +1,6 @@
-import { Form, Link } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 import { UserWithId } from "interfaces/user";
+import { ROUTES } from "~/constants";
 
 type HeaderProps = {
   user: UserWithId;
@@ -28,14 +29,12 @@ export function Header({ user }: HeaderProps) {
           <span className="hidden md:inline text-md md:text-lg font-medium text-white">
             Signed in as {user.name}
           </span>
-          <Form method="post" className="flex items-center">
-            <button
-              type="submit"
-              className="py-2 px-3 md:py-2 md:px-4 bg-white text-blue-600 rounded-full font-semibold shadow-sm hover:bg-gray-200 transition duration-300"
-            >
-              Sign Out
-            </button>
-          </Form>
+          <Link
+            to={ROUTES.SIGN_OUT}
+            className="py-2 px-3 md:py-2 md:px-4 bg-white text-blue-600 rounded-full font-semibold shadow-sm hover:bg-gray-200 transition duration-300"
+          >
+            Sign Out
+          </Link>
         </div>
       </div>
     </header>

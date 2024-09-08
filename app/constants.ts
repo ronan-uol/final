@@ -3,4 +3,5 @@ export const ROUTES = {
   LOGIN: "/auth/signIn",
   SIGNUP: "/auth/signUp",
   JOURNAL: "/journal",
+  SIGN_OUT: "/auth/signOut",
 };
