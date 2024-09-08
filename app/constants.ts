@@ -4,4 +4,5 @@ export const ROUTES = {
   SIGNUP: "/auth/signUp",
   JOURNAL: "/journal",
   SIGN_OUT: "/auth/signOut",
+  ADD_PARTNER: "/partner/add",
 };

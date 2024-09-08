@@ -40,3 +40,26 @@ export async function getUserMetrics(
 
   return userMetrics;
 }
+
+export async function addPartnershipIdByEmail(email: string, userId: string) {
+  const user = await prisma.user.findFirst({
+    where: {
+      email,
+    },
+  });
+
+  if (!user) {
+    return;
+  }
+
+  const partnershipId = user.id;
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      partnershipId,
+    },
+  });
+}

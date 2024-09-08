@@ -85,10 +85,19 @@ export default function Dashboard() {
               Anchor. Explore the features below to enhance your relationship.
             </p>
           ) : (
-            <p className="text-lg md:text-xl mt-2">
-              You are on a journey with Anchor. Make the most out of your time
-              with us. Explore the features below to enhance your relationship.
-            </p>
+            <>
+              <p className="text-lg md:text-xl mt-2">
+                You are on a journey with Anchor. Make the most out of your time
+                with us. Explore the features below to enhance your
+                relationship.{" "}
+                <Link
+                  className="text-blue-500 hover:underline"
+                  to={ROUTES.ADD_PARTNER}
+                >
+                  Add your partner here
+                </Link>
+              </p>
+            </>
           )}
         </header>
 
