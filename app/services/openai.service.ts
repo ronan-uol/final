@@ -10,6 +10,11 @@ export type OpenAiDateIdea = {
   photoUrl?: string;
 };
 
+export type OpenAiQuiz = {
+  question: string;
+  answer: string;
+};
+
 export async function getAiDateIdeas() {
   try {
     const completion = await openai.chat.completions.create({
@@ -41,6 +46,39 @@ export async function getAiDateIdeas() {
         description,
       })
     );
+  } catch (error) {
+    console.error("Error fetching data from OpenAI:", error);
+    throw new Error("Failed to fetch data from OpenAI");
+  }
+}
+
+export async function getAiQuiz(): Promise<OpenAiQuiz[]> {
+  try {
+    const completion = await openai.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content:
+            'You are an assistant whose job is to create a quiz. The quiz is for a couple to get to know each other on a deeper level. Respond with 3 questions in the following JSON format: {"questions": [{question: "What is your partner\'s favorite movie?"}]}',
+        },
+      ],
+      model: "gpt-4o-mini",
+      response_format: {
+        type: "json_object",
+      },
+    });
+
+    const unparsedQuestions = completion?.choices?.[0]?.message?.content;
+
+    if (!unparsedQuestions) {
+      throw new Error("Failed to fetch data from OpenAI");
+    }
+
+    const questions = JSON.parse(unparsedQuestions);
+
+    return questions.questions.map(({ question }: { question: string }) => ({
+      question,
+    }));
   } catch (error) {
     console.error("Error fetching data from OpenAI:", error);
     throw new Error("Failed to fetch data from OpenAI");

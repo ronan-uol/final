@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id             String         @id @default(uuid())
-  name           String
-  email          String         @unique
-  passwordHash   String
-  partnershipId  String?
-  createdOn      DateTime       @default(now())
-  updatedOn      DateTime       @updatedAt
-  journalEntries JournalEntry[]
-  expenses       Expense[]
+  id               String          @id @default(uuid())
+  name             String
+  email            String          @unique
+  passwordHash     String
+  partnershipId    String?
+  createdOn        DateTime        @default(now())
+  updatedOn        DateTime        @updatedAt
+  journalEntries   JournalEntry[]
+  expenses         Expense[]
+  completedQuizzes CompletedQuiz[]
 }
 
 model JournalEntry {
@@ -41,4 +42,28 @@ model Expense {
   amount      Float
   description String
   createdOn   DateTime @default(now())
+}
+
+model Quiz {
+  id            String          @id @default(uuid())
+  date          DateTime        @unique @default(now())
+  questions     Question[]
+  CompletedQuiz CompletedQuiz[]
+}
+
+model Question {
+  id            String  @id @default(uuid())
+  questionText  String
+  partnerAnswer String?
+  quizId        String
+  quiz          Quiz    @relation(fields: [quizId], references: [id], onDelete: Cascade)
+}
+
+model CompletedQuiz {
+  id      String @id @default(uuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quizId  String
+  quiz    Quiz   @relation(fields: [quizId], references: [id])
+  answers String
 }
